@@ -1,0 +1,29 @@
+ButtonRow {
+	background: $boost;
+	layout: horizontal;
+}
+
+ButtonRow Button {
+	margin: 3;
+	width: 1fr;
+}
+
+.card_back {
+	display: none;
+}
+
+.revealed .card_back {
+	display: block;
+}
+
+.feedback {
+	display: none;
+}
+
+.revealed .feedback {
+	display: block;
+}
+
+.revealed .reveal {
+	display: none;
+}
