@@ -78,8 +78,9 @@ class MyApp(App):
 		("enter", "flip", "Flip Card")
 	]
 	def on_mount(self):
-		self.theme = "tokyo-night"
+		self.theme = "rose-pine-moon"
 		self.state = "review"
+
 	def compose(self) -> ComposeResult:
 		yield Flashcard()
 		yield Footer()
