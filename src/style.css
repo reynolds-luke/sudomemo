@@ -1,11 +1,24 @@
-ButtonRow {
-	background: $boost;
-	layout: horizontal;
+#card_info {
+	border: $boost;
+	overflow-y: auto;
+	height: 1fr;
 }
 
-ButtonRow Button {
-	margin: 3;
+#card_info Markdown {
+	padding:1;
+}
+
+#card_info_sep {
+	background: $boost;
+	align-horizontal: center;
 	width: 1fr;
+	text-align: center;
+	padding:2;
+}
+
+#button_row {
+	background: $boost;
+	height: auto;
 }
 
 .card_back {
@@ -13,17 +26,22 @@ ButtonRow Button {
 }
 
 .revealed .card_back {
-	display: block;
+	display: block
 }
 
-.feedback {
+.revealed #flip{
+	display: none;	
+} 
+
+#button_row Button{
+	width: 1fr;
+	margin: 1;
+}
+
+.feedback{
 	display: none;
 }
 
-.revealed .feedback {
+.revealed .feedback{
 	display: block;
-}
-
-.revealed .reveal {
-	display: none;
 }
