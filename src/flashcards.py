@@ -4,10 +4,14 @@ from textual.widgets import Markdown, Label, Input, Static, Rule
 from textual.widget import Widget
 from difflib import SequenceMatcher
 
+from messages import CardFlipped
+
 front = "example_front"
 back = "example_back"
 
 class CardBackSep(Widget):
+	DEFAULT_CLASSES = "card"
+
 	def compose(self) -> ComposeResult:
 		self.add_class("card_back")
 		yield Rule()
@@ -16,12 +20,16 @@ class CardBackSep(Widget):
 
 
 class CardBasic(Widget):
+	DEFAULT_CLASSES = "card"
+
 	def compose(self) -> ComposeResult:
 		with Container(id="card_info"):
 			yield Markdown(front)
 			yield CardBackSep()
 			yield Markdown(back, id="card_back_text", classes="card_back")
 
+	def on_card_flipped(self, message: CardFlipped):
+		self.query_one("#card_back_text").scroll_visible()
 
 class CardBasicInput(Widget):
 	def char_redline(self, src: str, tgt: str, src_cont, tgt_cont) -> None:
@@ -53,8 +61,10 @@ class CardBasicInput(Widget):
 	def on_mount(self):
 		self.query_one(Input).focus()
 
-	def on_input_submitted(self, event: Input.Submitted):
-		event.input.disabled = True
+	def on_card_flipped(self, message: CardFlipped):
+		self.query_one("#redline_tgt").scroll_visible()
+		input_widget = self.query_one(Input)
+		input_widget.disabled = True
 		src_cont = self.query_one("#redline_src")
 		tgt_cont = self.query_one("#redline_tgt")
-		self.char_redline(event.value, "hello world", src_cont, tgt_cont)
+		self.char_redline(input_widget.value, "hello world", src_cont, tgt_cont)

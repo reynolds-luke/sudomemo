@@ -6,6 +6,7 @@ from textual.widget import Widget
 
 from enum import Enum
 
+from messages import CardFlipped
 from flashcards import CardBasic, CardBasicInput
 
 
@@ -36,17 +37,17 @@ class ReviewScreen(Screen):
 
 	def mount_card(self):
 		self.mount(VerticalScroll(
-			CardBasicInput(),
-			Horizontal(
-				Button("Flip ⏎", id="flip", variant="primary"),
-				Button("Fail (1)", id="feedback_fail", classes="feedback", variant="error"),
-				Button("Hard (2)", id="feedback_hard", classes="feedback", variant="warning"),
-				Button("Good (3)", id="feedback_good", classes="feedback", variant="primary"),
-				Button("Easy (4)", id="feedback_easy", classes="feedback", variant="success"),
-				id="button_row",
-				),
-			id = "flashcard"
-			)
+				CardBasicInput(),
+				Horizontal(
+					Button("Flip ⏎", id="flip", variant="primary"),
+					Button("Fail (1)", id="feedback_fail", classes="feedback", variant="error"),
+					Button("Hard (2)", id="feedback_hard", classes="feedback", variant="warning"),
+					Button("Good (3)", id="feedback_good", classes="feedback", variant="primary"),
+					Button("Easy (4)", id="feedback_easy", classes="feedback", variant="success"),
+					id="button_row",
+					),
+				id = "flashcard"
+				)
 			)
 
 	def on_input_submitted(self, event: Input.Submitted):
@@ -61,8 +62,9 @@ class ReviewScreen(Screen):
 	def action_flip(self):
 		self.app.set_focus(None)
 		self.add_class("revealed")
-		self.query_one("#card_back_text").scroll_visible()
 		self.refresh_bindings()
+
+		self.query_one(".card").post_message(CardFlipped())
 
 	def process_feedback(self, id):
 		self.remove_class("revealed")
