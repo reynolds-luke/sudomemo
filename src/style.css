@@ -17,14 +17,6 @@
 	height: auto;
 }
 
-.card_back {
-	display: none;
-}
-
-.revealed .card_back {
-	display: block
-}
-
 CardBackSep {
 	height: auto;
 }
@@ -42,6 +34,7 @@ CardBackSep {
 	display: none;
 }
 
+
 .revealed .feedback{
 	display: block;
 }
@@ -52,12 +45,18 @@ CardBackSep {
 	align-horizontal:center;
 }
 
+Container {
+	height: auto;
+}
+
+Markdown {
+	height: auto;
+}
 
 .diff_delete{
 	color: $error;
 	background: $error 20%;
 }
-
 
 
 .diff_add{

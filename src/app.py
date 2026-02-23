@@ -7,8 +7,8 @@ from textual.widget import Widget
 from enum import Enum
 
 from messages import CardFlipped
-from flashcards import CardBasic, CardBasicInput
-
+# from cards.flashcards import CardBasic, CardBasicInput
+from cards.base import CardBasicInput, Card
 
 class ReviewScreen(Screen):
 	CSS_PATH = "style.css"
@@ -37,7 +37,7 @@ class ReviewScreen(Screen):
 
 	def mount_card(self):
 		self.mount(VerticalScroll(
-				CardBasicInput(),
+				CardBasicInput("Good Morning", "buenos días", ""),
 				Horizontal(
 					Button("Flip ⏎", id="flip", variant="primary"),
 					Button("Fail (1)", id="feedback_fail", classes="feedback", variant="error"),
@@ -64,7 +64,7 @@ class ReviewScreen(Screen):
 		self.add_class("revealed")
 		self.refresh_bindings()
 
-		self.query_one(".card").post_message(CardFlipped())
+		self.query_one(Card).post_message(CardFlipped())
 
 	def process_feedback(self, id):
 		self.remove_class("revealed")
