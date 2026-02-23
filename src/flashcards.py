@@ -19,7 +19,7 @@ class CardBasic(Widget):
 	def compose(self) -> ComposeResult:
 		with Container(id="card_info"):
 			yield Markdown(front)
-			yield Label("↓↓↓CARD BACK↓↓↓", id="card_info_sep", classes="card_back")
+			yield CardBackSep()
 			yield Markdown(back, id="card_back_text", classes="card_back")
 
 
