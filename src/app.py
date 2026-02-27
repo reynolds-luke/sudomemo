@@ -8,7 +8,7 @@ from enum import Enum
 
 from messages import CardFlipped
 # from cards.flashcards import CardBasic, CardBasicInput
-from cards.base import CardBasicInput, Card
+from cards.base import Card, CardBasic, CardBasicInput, CardChoices
 
 class ReviewScreen(Screen):
 	CSS_PATH = "style.css"
@@ -37,7 +37,7 @@ class ReviewScreen(Screen):
 
 	def mount_card(self):
 		self.mount(VerticalScroll(
-				CardBasicInput("Good Morning", "buenos días", ""),
+				CardBasicInput("Good Morning", "buenos días"),
 				Horizontal(
 					Button("Flip ⏎", id="flip", variant="primary"),
 					Button("Fail (1)", id="feedback_fail", classes="feedback", variant="error"),
@@ -49,9 +49,6 @@ class ReviewScreen(Screen):
 				id = "flashcard"
 				)
 			)
-
-	def on_input_submitted(self, event: Input.Submitted):
-		self.action_flip()
 
 	def on_button_pressed(self, event: Button.Pressed) -> None:
 		if event.button.has_class("feedback"):

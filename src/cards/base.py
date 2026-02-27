@@ -1,8 +1,10 @@
+from textual.screen import Screen
 from textual.containers import Container, HorizontalGroup
 from textual.app import ComposeResult
-from textual.widgets import Rule, Label, Markdown, Input
+from textual.widgets import Rule, Label, Markdown, Input, RadioButton, RadioSet
 from textual.widget import Widget
 
+import random
 from difflib import SequenceMatcher
 
 from messages import CardFlipped
@@ -24,7 +26,7 @@ class Card(Widget):
 	def on_mount(self):
 		self.mount_front(self.container)
 
-	def on_card_flipped(self):
+	def on_card_flipped(self, message: CardFlipped) -> None:
 		self.container.mount(CardBackSep())
 		self.mount_back(self.container)
 
@@ -37,6 +39,9 @@ class Card(Widget):
 	def mount_back(self, c):
 		"""Subclass must implement"""
 		raise NotImplimentedError
+
+	def force_flip(self):
+		self.app.screen.action_flip()
 
 
 class CardBasic(Card):
@@ -91,19 +96,114 @@ class Redline(Container):
 
 
 class CardBasicInput(Card):
-	def __init__(self, card_front, answer, card_back):
+	def __init__(self, card_front, answer, card_back=None):
 		super().__init__()
 		self.card_front = card_front
 		self.answer 	= answer
-		self.card_back 	= card_back
+
+		self.card_back = card_back
+		if self.card_back:
+			if len(self.card_back) == 0:
+				self.card_back = None
 
 	def mount_front(self, c):
 		c.mount(Markdown(self.card_front))
-		text_input = Input(placeholder="Type Here.")
+		text_input = Input(placeholder="Type Here.", id="card_input")
 
 		c.mount(text_input)
 		text_input.focus()
 
 	def mount_back(self, c):
 		c.mount(Redline(self.query_one(Input).value, self.answer))
-		c.mount(Markdown(self.card_back))
+		if self.card_back:
+			c.mount(Markdown(self.card_back))
+		self.query_one("#card_input").disabled = True
+
+	def on_input_submitted(self, value):
+		self.force_flip()
+
+class CardChoices(Card):
+	DEFAULT_CSS = """
+	CardChoices #answer_cont {
+		width: 1fr;
+		align-horizontal: center;
+	}
+
+	CardChoices HorizontalGroup {
+		width: auto;
+	}
+
+	CardChoices .incorrect {
+		color: $error;
+		background: $error 20%;
+	}
+
+	CardChoices .correct {
+		color: $success;
+		background: $success 20%;
+	}
+	"""
+
+	BINDINGS = [("1", "choose(0)", "opt 1"),
+		    ("2", "choose(1)", "opt 2"),
+		    ("3", "choose(2)", "opt 3"),
+		    ("4", "choose(4)", "opt 4")]
+
+	def __init__(self, card_front, options, card_back=None):
+		super().__init__()
+		self.card_front = card_front
+		self.correct = options[0] # assume correct answer always provided as correct answer.
+		self.options = options
+		random.shuffle(self.options)
+
+
+		self.card_back = card_back
+		if self.card_back:
+			if len(self.card_back) == 0:
+				self.card_back = None
+
+	def mount_front(self, c):
+		c.mount(Markdown(self.card_front))
+
+		radioset = RadioSet(id="card_radio")
+		c.mount(radioset)
+
+		for n, option in enumerate(self.options):
+			radioset.mount(RadioButton(f"({n+1}) {option}", id=f"radio_opt_{n}"))
+
+		radioset.focus()
+
+	def mount_back(self, c):
+		pressed_id = self.query_one("#card_radio").pressed_index
+		if pressed_id >= 0:
+			selected_answer = self.options[pressed_id]
+		else:
+			selected_answer = "None"
+
+		answer_cont = Container(id="answer_cont")
+		c.mount(answer_cont)
+
+		if selected_answer == self.correct:
+			answer_cont.mount(Label(f"✓  {self.correct}  ✓"))
+		else:
+			answer_cont.mount(HorizontalGroup(	Label("You chose: "),
+							  	Label(selected_answer, classes="incorrect")
+							  ))
+			answer_cont.mount(HorizontalGroup(	Label("Correct  : "),
+						          	Label(self.correct, classes="correct")
+							))
+
+		if self.card_back:
+			c.mount(Markdown(self.card_back))
+
+		self.query_one("#card_radio").disabled = True
+
+	def action_choose(self, index: int) -> None:
+		radioset = self.query_one("#card_radio")
+		buttons = radioset.query(RadioButton)
+
+		if 0 <= index < len(buttons):
+			buttons[index].value = True
+
+	def on_radio_set_changed(self, event: RadioButton.Changed) -> None:
+		self.force_flip()
