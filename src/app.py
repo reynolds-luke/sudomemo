@@ -37,7 +37,7 @@ class ReviewScreen(Screen):
 
 	def mount_card(self):
 		self.mount(VerticalScroll(
-				CardBasicInput("Good Morning", "buenos días"),
+				CardChoices("card front", ["good", "bad_1", "bad_2"]),
 				Horizontal(
 					Button("Flip ⏎", id="flip", variant="primary"),
 					Button("Fail (1)", id="feedback_fail", classes="feedback", variant="error"),

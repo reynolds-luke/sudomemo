@@ -144,10 +144,8 @@ class CardChoices(Card):
 	}
 	"""
 
-	BINDINGS = [("1", "choose(0)", "opt 1"),
-		    ("2", "choose(1)", "opt 2"),
-		    ("3", "choose(2)", "opt 3"),
-		    ("4", "choose(4)", "opt 4")]
+	BINDINGS = [("j", "next_button", "Next option"),
+		    ("k", "previous_button", "Previous option")]
 
 	def __init__(self, card_front, options, card_back=None):
 		super().__init__()
@@ -169,7 +167,7 @@ class CardChoices(Card):
 		c.mount(radioset)
 
 		for n, option in enumerate(self.options):
-			radioset.mount(RadioButton(f"({n+1}) {option}", id=f"radio_opt_{n}"))
+			radioset.mount(RadioButton(option, id=f"radio_opt_{n}"))
 
 		radioset.focus()
 
@@ -197,6 +195,14 @@ class CardChoices(Card):
 			c.mount(Markdown(self.card_back))
 
 		self.query_one("#card_radio").disabled = True
+
+	def action_next_button(self) -> None:
+		radioset = self.query_one("#card_radio")
+		radioset.action_next_button()
+
+	def action_previous_button(self) -> None:
+		radioset = self.query_one("#card_radio")
+		radioset.action_previous_button()
 
 	def action_choose(self, index: int) -> None:
 		radioset = self.query_one("#card_radio")
