@@ -4,11 +4,13 @@ from textual.containers import Container,  Horizontal, VerticalScroll
 from textual.widgets import Footer, Button, Markdown, Rule, Label, Input
 from textual.widget import Widget
 
+
 from enum import Enum
 
 from messages import CardFlipped
 # from cards.flashcards import CardBasic, CardBasicInput
 from cards.base import Card, CardBasic, CardBasicInput, CardChoices
+from chat import ChatWidget
 
 class ReviewScreen(Screen):
 	CSS_PATH = "style.css"
@@ -39,6 +41,7 @@ class ReviewScreen(Screen):
 		self.mount(VerticalScroll(
 				#CardChoices("card front", ["good", "bad_1", "bad_2"]),
 				CardBasicInput("good morning", "buenos días", "card back"),
+				ChatWidget(),
 				Horizontal(
 					Button("Flip ⏎", id="flip", variant="primary"),
 					Button("Fail (1)", id="feedback_fail", classes="feedback", variant="error"),
