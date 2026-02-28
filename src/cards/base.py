@@ -58,6 +58,23 @@ class CardBasic(Card):
 
 
 class Redline(Container):
+	DEFAULT_CSS = """
+	Redline .redline {
+		width: 1fr;
+		text-align: center;
+		align-horizontal: center;
+	}
+
+	Redline .diff_delete {
+		color: $error;
+		background: $error 20%;
+	}
+
+	Redline .diff_add {
+		color: $success;
+		background: $success 20%;
+	}
+	"""
 	def __init__(self, src, tgt):
 		super().__init__()
 		self.src = src

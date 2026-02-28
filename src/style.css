@@ -39,12 +39,6 @@ CardBackSep {
 	display: block;
 }
 
-.redline{
-	width: 1fr;
-	text-align: center;
-	align-horizontal:center;
-}
-
 Container {
 	height: auto;
 }
@@ -53,13 +47,3 @@ Markdown {
 	height: auto;
 }
 
-.diff_delete{
-	color: $error;
-	background: $error 20%;
-}
-
-
-.diff_add{
-	color: $success;
-	background: $success 20%;
-}
