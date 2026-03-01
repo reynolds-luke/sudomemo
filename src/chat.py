@@ -11,13 +11,10 @@ from openai import OpenAI
 
 API_KEY = os.environ["OPENAI_API_KEY"]
 
-messages = []
-
-
 
 class Message(Container):
     text = reactive("")
-    
+
     def __init__(self, text, user):
         super().__init__(classes=f"message user_{user}")
         self.label = Label()
@@ -30,7 +27,6 @@ class Message(Container):
         self.label.update(new_text)
 
 class ChatWidget(Widget):
-    CSS_PATH = "chat.tcss"
     DEFAULT_CSS = """
     #input_bar {
         height: 5;
@@ -88,7 +84,7 @@ class ChatWidget(Widget):
         self.message_container.mount(Message(user_message, user="human"))
 
         self.message_container.scroll_end()
-        
+
         response = Message("...", user="ai")
         self.message_container.mount(response)
 
@@ -101,15 +97,15 @@ class ChatWidget(Widget):
         text = ""
 
         messages = []
-        for message in self.message_container.query(Message)[:-1]:
-            if message.has_class("user_human"):
+        for msg in self.message_container.query(Message)[:-1]:
+            if msg.has_class("user_human"):
                 role = "user"
-            elif message.has_class("user_ai"):
+            elif msg.has_class("user_ai"):
                 role = "assistant"
             else:
                 raise Exception("invalis message user detected")
 
-            messages.append({"role": role, "content": str(message.text)})
+            messages.append({"role": role, "content": str(msg.text)})
 
         if message == "":
             message = " "
@@ -125,6 +121,7 @@ class ChatWidget(Widget):
                     text += event.delta
                     self.app.call_from_thread(setattr, response_message, "text", text)
                     self.app.call_from_thread(self.message_container.scroll_end)
+
 class MyApp(App):
     def compose(self):
         yield ChatWidget()
