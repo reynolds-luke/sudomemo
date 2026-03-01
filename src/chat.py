@@ -15,8 +15,8 @@ API_KEY = os.environ["OPENAI_API_KEY"]
 class Message(Container):
     text = reactive("")
 
-    def __init__(self, text, user):
-        super().__init__(classes=f"message user_{user}")
+    def __init__(self, text, sender):
+        super().__init__(classes=f"message user_{sender}")
         self.label = Label()
         self.text = text
 
@@ -70,57 +70,54 @@ class ChatWidget(Widget):
         super().__init__()
         self.app.theme = "rose-pine-moon"
 
-        self.message_container = VerticalScroll(id="message_container")
+        self.chat_log = VerticalScroll(id="message_container")
         self.input_bar = Horizontal(    TextArea(id="input_text"),
                         Button("Submit", variant="primary"),
                         id = "input_bar")
     def compose(self) -> ComposeResult:
-        yield self.message_container
+        yield self.chat_log
         yield self.input_bar
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        user_message = self.input_bar.query_one(TextArea).text
+        user_input = self.input_bar.query_one(TextArea).text
         self.input_bar.query_one(TextArea).text = ""
-        self.message_container.mount(Message(user_message, user="human"))
+        self.chat_log.mount(Message(user_input, sender="human"))
 
-        self.message_container.scroll_end()
+        self.chat_log.scroll_end()
 
-        response = Message("...", user="ai")
-        self.message_container.mount(response)
+        reply_widget = Message("...", sender="ai")
+        self.chat_log.mount(reply_widget)
 
-        self.get_response(user_message, response)
+        self.get_response(user_input, reply_widget)
 
     @work(exclusive=True, thread=True)
-    def get_response(self, message, response_message):
+    def get_response(self, user_input, reply_widget):
         client = OpenAI(api_key = API_KEY)
 
-        text = ""
-
-        messages = []
-        for msg in self.message_container.query(Message)[:-1]:
-            if msg.has_class("user_human"):
+        history = []
+        for bubble in self.chat_log.query(Message)[:-1]:
+            if bubble.has_class("user_human"):
                 role = "user"
-            elif msg.has_class("user_ai"):
+            elif bubble.has_class("user_ai"):
                 role = "assistant"
             else:
-                raise Exception("invalis message user detected")
+                raise Exception("invalid message sender detected")
 
-            messages.append({"role": role, "content": str(msg.text)})
+            history.append({"role": role, "content": str(bubble.text)})
 
-        if message == "":
-            message = " "
-
+        if user_input == "":
+            user_input = " "
 
         with client.responses.stream(
             model="gpt-4.1-mini",
-            input=messages
+            input=history
         ) as stream:
-            text = ""
-            for event in stream:
-                if event.type == "response.output_text.delta":
-                    text += event.delta
-                    self.app.call_from_thread(setattr, response_message, "text", text)
-                    self.app.call_from_thread(self.message_container.scroll_end)
+            reply_text = ""
+            for stream_event in stream:
+                if stream_event.type == "response.output_text.delta":
+                    reply_text += stream_event.delta
+                    self.app.call_from_thread(setattr, reply_widget, "text", reply_text)
+                    self.app.call_from_thread(self.chat_log.scroll_end)
 
 class MyApp(App):
     def compose(self):
