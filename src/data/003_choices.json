@@ -1,0 +1,5 @@
+{
+    "type": "choices",
+    "front": "What is the capital of France?",
+    "options": ["Paris", "London", "Berlin", "Madrid"]
+}

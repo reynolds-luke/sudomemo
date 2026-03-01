@@ -1,0 +1,13 @@
+# Ignore all
+*
+
+
+# But not dirs
+!*/
+
+
+# But not py/css/txt/json
+!*.py
+!*.css
+!*.txt
+!*.json
