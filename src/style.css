@@ -1,49 +1,49 @@
 #card_info {
-	border: $boost;
-	overflow-y: auto;
-	height: 1fr;
+    border: $boost;
+    overflow-y: auto;
+    height: 1fr;
 }
 
 
 #card_info_sep {
-	align-horizontal: center;
-	width: 1fr;
-	text-align: center;
+    align-horizontal: center;
+    width: 1fr;
+    text-align: center;
 }
 
 #button_row {
-	dock: bottom;
-	background: $boost;
-	height: auto;
+    dock: bottom;
+    background: $boost;
+    height: auto;
 }
 
 CardBackSep {
-	height: auto;
+    height: auto;
 }
 
 .revealed #flip{
-	display: none;	
+    display: none;  
 } 
 
 #button_row Button{
-	width: 1fr;
-	margin: 1;
+    width: 1fr;
+    margin: 1;
 }
 
 .feedback{
-	display: none;
+    display: none;
 }
 
 
 .revealed .feedback{
-	display: block;
+    display: block;
 }
 
 Container {
-	height: auto;
+    height: auto;
 }
 
 Markdown {
-	height: auto;
+    height: auto;
 }
 
