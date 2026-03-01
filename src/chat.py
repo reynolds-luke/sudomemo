@@ -4,6 +4,7 @@ from textual.widget import Widget
 from textual.containers import Horizontal, VerticalScroll, Container
 from textual import work
 from textual.worker import Worker, get_current_worker
+from textual.reactive import reactive
 
 import os
 from openai import OpenAI
@@ -15,13 +16,18 @@ messages = []
 
 
 class Message(Container):
+    text = reactive("")
+    
     def __init__(self, text, user):
         super().__init__(classes=f"message user_{user}")
-        self.label = Label(text)
+        self.label = Label()
+        self.text = text
 
     def compose(self) -> ComposeResult:
         yield self.label
 
+    def watch_text(self, new_text):
+        self.label.update(new_text)
 
 class ChatWidget(Widget):
     CSS_PATH = "chat.tcss"
@@ -79,30 +85,46 @@ class ChatWidget(Widget):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         user_message = self.input_bar.query_one(TextArea).text
         self.input_bar.query_one(TextArea).text = ""
-
         self.message_container.mount(Message(user_message, user="human"))
-        response = Message("..", user="ai")
+
+        self.message_container.scroll_end()
+        
+        response = Message("...", user="ai")
         self.message_container.mount(response)
 
-        self.get_response(user_message, response.label)
+        self.get_response(user_message, response)
 
     @work(exclusive=True, thread=True)
-    def get_response(self, message, label):
+    def get_response(self, message, response_message):
         client = OpenAI(api_key = API_KEY)
 
         text = ""
 
+        messages = []
+        for message in self.message_container.query(Message)[:-1]:
+            if message.has_class("user_human"):
+                role = "user"
+            elif message.has_class("user_ai"):
+                role = "assistant"
+            else:
+                raise Exception("invalis message user detected")
+
+            messages.append({"role": role, "content": str(message.text)})
+
         if message == "":
             message = " "
 
+
         with client.responses.stream(
             model="gpt-4.1-mini",
-            input=message
+            input=messages
         ) as stream:
+            text = ""
             for event in stream:
                 if event.type == "response.output_text.delta":
                     text += event.delta
-                    self.app.call_from_thread(label.update, text)
+                    self.app.call_from_thread(setattr, response_message, "text", text)
+                    self.app.call_from_thread(self.message_container.scroll_end)
 class MyApp(App):
     def compose(self):
         yield ChatWidget()
